@@ -1,0 +1,384 @@
+<template>
+	<div>
+
+		<uni-tabs @change="changeTab" :index="tabIndex">
+			<!-- 顶部分类栏 -->
+			<uni-tab-bar :drag="false" :tab-bars="tabBars" :tab-index="tabIndex" v-if="isShowTab"></uni-tab-bar>
+
+			<uni-tab-content>
+				<!-- 3个内容页,tabNum表示当前分类的序号 -->
+				<list class="list" @loadmore="loadMore(tabNum)" show-scrollbar="false" loadmoreoffset="5" v-for="tabNum in tabNums"
+				 :key="tabNum" @scroll="handScroll" offset-accuracy="50">
+
+					<!-- 内容顶部下拉刷新组件 -->
+					<refresh class="refresh" @refresh="onrefresh" @pullingdown="onpullingdown" :display="refreshing ? 'show' : 'hide'">
+						<!-- <text class="refresh-text">{{refreshText}}</text> -->
+						<loading-indicator class="indicator"></loading-indicator>
+					</refresh>
+					<!-- 顶部占位盒子,并显示刷新信息 -->
+					<cell class="top-box">
+						<text class="refresh-text">{{refreshText}}</text>
+					</cell>
+
+					<!-- 内容列表组件, homeList[tabNum].list表示当前页的动态数据列表,这里的item就是每条动态数据, index表示这条动态数据的序号-->
+					<cell v-for="(item,index) in homeList[tabNum].list" :key="index" style="background-color: #eeeeee">
+						<uni-media-list :itemData="item" @click="goDetail(item, 0)" @clickComment="goDetail(item , 1)"></uni-media-list>
+					</cell>
+					<!-- 底部加载更多组件 -->
+					<cell class="loadmore">
+						<text class="loadmore-text">{{loadingText}}</text>
+					</cell>
+				</list>
+			</uni-tab-content>
+		</uni-tabs>
+
+		<!-- 悬浮的发布按钮 -->
+		<div v-if="isShowButt">
+			<image class="create-icon" src="../../static/news/create.png" @click="handCreateCilck"></image>
+		</div>
+
+	</div>
+</template>
+
+<script>
+	import uniTabContent from './component/uni-tab-content/uni-tab-content.nvue'
+	import uniTabBar from './component/uni-tab-bar/uni-tab-bar.nvue'
+	import uniTabs from './component/uni-tabs/uni-tabs.nvue'
+	import uniMediaList from './component/uni-media-list/uni-media-list.nvue'
+
+	import conf from '../../common/config.js'; //全局的一些配置信息
+
+	const dom = weex.requireModule('dom')
+	export default {
+		components: {
+			uniTabContent,
+			uniTabBar,
+			uniTabs,
+			uniMediaList
+		},
+		data() {
+			return {
+				refreshing: false,
+				refreshText: "下拉可以刷新",
+				loadingText: "加载更多中..",
+				isShowTab: true,
+				isShowButt: true,
+				scrollY: 0,
+
+				tabNums: [0, 1, 2],
+				tabIndex: 1,
+
+				//用来存储动态页的3个tab分类页list数据对象
+				homeList: [
+					{	//最新页的数据
+						page: 1,
+						total: 0,
+						totalPage: 0,
+						list: []
+					},{	//推荐页的数据
+						page: 1,
+						total: 0,
+						totalPage: 0,
+						list: []
+					},{	//热门页的数据
+						page: 1,
+						total: 0,
+						totalPage: 0,
+						list: []
+					}
+				],
+				
+				//位置信息对象
+				localInfo: {
+					longitude: '',
+					latitude: '',
+					addressName: ''
+				},
+
+				tabBars: [{
+					name: '最新',
+					id: 'tiyu'
+				}, {
+					name: '推荐',
+					id: 'redian'
+				}, {
+					name: '热门',
+					id: 'caijing'
+				}]
+			}
+		},
+		created() {
+			//查询默认的推荐分类的第1页数据
+			this.getNewsList(1, this.tabIndex);
+			
+			//监听导航栏的"<"或"O"的点击事件(返回,手动定位)
+			uni.onNavigationBarButtonTap((e) => {
+				console.log("监听到原生标题栏按钮点击事件");
+				if (e.index == 0) {
+					uni.switchTab({
+						url: '/pages/index/index'
+					});
+				} else if (e.index == 1) {
+					this.chooseLocalInfo();
+					console.log("点击了重新定位按钮")
+				} else {
+					return;
+				}
+
+			})
+		},
+		mounted() {
+			this.setTabbarReddot();//设置红点
+		},
+		updated() {
+		},
+		watch:{
+			//监听当前分类的切换
+			'tabIndex': function(val){
+				let objectItem = this.homeList[val];
+				//如果当前分类页没有数据,就加载第一页数据
+				if (objectItem.list.length == 0) {
+					console.log("没有数据,加载一页数据")
+					this.getNewsList(1, val)
+				}
+			}
+		},
+		methods: {
+			//获取对应分类tabbar的动态数据(index为动态的分类下标)
+			getNewsList(page, index) {
+				var url = conf.serverUrl; //读取属性serverUrl
+				var objectItem = this.homeList[index]; //要操作的分类的数据对象
+				console.log(url)
+				//请求服务端数据
+				uni.request({
+					url: url + '/newsdata?category=' + this.tabBars[index].name + "&page=" + page,
+					success: (res) => {
+						console.log("请求分类" + this.tabBars[index].name + "的第" + page + "页数据");
+						let result = res.data;
+						//拼接数据到对应分类的list中,且设置分页信息
+						objectItem.list = objectItem.list.concat(result.newsList);
+						//objectItem.page = result.page;
+						objectItem.page = page;
+						objectItem.total = result.total;
+						objectItem.totalPage = result.totalPage;
+						//覆盖原有的数据
+						this.homeList[index] = objectItem; 	
+						this.refreshing = false; //刷新结束
+					}
+				});
+			},
+			
+			//设置红点
+			setTabbarReddot() {
+				//延时获取uni的api,防止调用不到,设置红点
+				setTimeout(() => {
+					uni.showTabBarRedDot({
+						index: 2,
+					})
+				}, 200)
+			},
+
+			//侧边栏的关闭事件函数
+			handDrawerClose: function() {
+				this.isShowDrawer = false
+				console.log("点遮罩或关闭按钮-侧边栏关闭")
+			},
+			//点击了发布+按钮
+			handCreateCilck() {
+				uni.navigateTo({
+					url: '../createNews/createNews'
+				});
+			},
+			goDetail(e,flag) {
+				//这里的e是,单条动态数据对象, 我们在跳转前保存e进缓存,方便在详情页获取
+				//flag是标识是否点击了评论才跳转到详情页, 0和1
+				
+				//由于在APP端,getStorage取不到在nvue页面设置的js对象data,所以就转换为json保存
+				var item = JSON.stringify(e)
+				uni.setStorage({
+					key: 'newsItem',
+					data: item,
+					success: function() {
+						console.log('保存单条动态信息成功');
+						uni.navigateTo({
+							url: '/pages/newsDetail/newsDetail?flag=' + flag
+						});
+					}
+				});
+			},
+			//分类的tab切换了
+			async changeTab(e) {
+				this.tabIndex = e.index;
+			},
+			getElSize(el) { //得到元素的size
+				return new Promise((res, rej) => {
+					const result = dom.getComponentRect(el, option => {
+						res(option.size);
+					})
+				})
+			},
+			onrefresh(event) {
+				this.refreshText = "正在刷新...";
+				this.refreshing = true;
+				this.loadingText = ''; //设置底部的加载更多为空
+				let index = this.tabIndex;//当前分类tab的下标
+				this.homeList[index].page = 1;
+				this.homeList[index].list = []; //清空数据
+				
+				//重新获取当前分类的第1页数据
+				this.getNewsList(1, index);
+			},
+			onpullingdown(event) {
+				if (this.refreshing) {
+					return;
+				}
+				if (Math.abs(event.pullingDistance) > Math.abs(event.viewHeight)) {
+					this.refreshText = "释放立即刷新";
+				} else {
+					this.refreshText = "下拉可以刷新";
+				}
+			},
+			loadMore(e) {
+				this.loadingText = "加载更多中.."
+				let index = this.tabIndex; //当前分类tab的下标
+				let page = this.homeList[index].page + 1; //下一页
+				let totalPage = this.homeList[index].totalPage;
+				if(page > totalPage){ //没有更多数据了
+					this.loadingText = "没有更多了"
+					return;
+				}else{
+					//加载下一页的数据
+					this.getNewsList(page, index);	
+				}		
+			},
+			//监听页面的滚动,判断滑动的位移差,如果是上滑,就隐藏分类栏
+			handScroll(event) {
+				let y = Math.abs(event.contentOffset.y); //获取当前滑动了多高
+				let d = y - this.scrollY; //计算当前滑动与上次的位移差
+				if (d > 0) {
+					this.isShowTab = false //上滑隐藏分类栏
+					this.scrollY = y
+				} else {
+					this.isShowTab = true //下拉显示分类栏
+					this.scrollY = y
+				}
+				if (y > 500) {
+					this.isShowButt = false //隐藏按钮
+				} else {
+					this.isShowButt = true //显示按钮
+					return
+				}
+
+			},
+			//手动选择位置信息,并保存到缓存中(手动选择的位置比较准确,所以覆盖高德api的地址信息)
+			chooseLocalInfo() {
+				var that = this;
+				uni.chooseLocation({
+					success: function(res) {
+						console.log('位置名称：' + res.name);
+						console.log('详细地址：' + res.address);
+						console.log('纬度：' + res.latitude);
+						console.log('经度：' + res.longitude);
+						that.localInfo = {
+							addressName: res.address,
+							longitude: res.longitude,
+							latitude: res.latitude
+						}
+						uni.setStorage({
+							key: 'localInfo',
+							data: that.localInfo,
+							success: function() {
+								console.log('更新保存地址信息对象localtionInfo成功(手动选择的地址)');
+							}
+						});
+					}
+				});
+			}
+		}
+	}
+</script>
+
+<style>
+	.list {
+		border: 0;
+		border-color: #eeeeee;
+		background-color: #eeeeee;
+	}
+
+	.top-box {
+		width: 750px;
+		height: 45px;
+		background-color: #eeeeee;
+		padding-top: 7px;
+	}
+
+	.tab-bar-item {
+		width: 150px;
+		height: 100px;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.tab-bar-title {
+		height: 100px;
+		line-height: 100px;
+		font-size: 30px;
+		color: #555;
+	}
+
+	.active {
+		color: #007AFF;
+	}
+
+	.loadmore {
+		height: 70px;
+		width: 750px;
+		flex-direction: column;
+		justify-content: center;
+	}
+
+	.loadmore-text {
+		font-size: 30px;
+		text-align: center;
+		color: #999999;
+	}
+
+	.refresh {
+		width: 750px;
+		height: 90px;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		background-color: #eeeeee;
+	}
+
+	.refresh-text {
+		text-align: center;
+		font-size: 28px;
+		color: #999999;
+	}
+
+	.indicator {
+		margin-top: 12px;
+		height: 50px;
+		width: 50px;
+		color: #ea5455;
+		position: absolute;
+		bottom: 0px;
+		z-index: 999;
+	}
+
+	.create-icon {
+		width: 100px;
+		height: 100px;
+		background-color: #FFFFFF;
+		border-radius: 50px;
+		padding: 25px;
+		box-sizing: border-box;
+		position: fixed;
+		bottom: 60px;
+		right: 60px;
+		box-shadow: 0 3px 4px 0 #707070;
+	}
+</style>

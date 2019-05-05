@@ -1,0 +1,86 @@
+<template>
+	<!-- 在nvue页面使用的侧边栏组件,已弃用 -->
+	<div>
+		<!-- <div class="drawer-box" :style="{width: drawerBoxWidth + 'px'}" @click="handClickMask"> -->
+		<div v-if="showDrawer" class="drawer-box" @click="handClickMask">
+			<div class="drawer" @click="handClickDrawer">
+				<slot></slot>
+				<text class="button" @click="handClickMask">关闭</text>
+			</div>
+		</div>
+	</div>
+</template>
+
+<script>
+	export default {
+		props: {
+			showDrawer: {
+				type: Boolean,
+				default: false
+			}
+		},
+		created() {
+			console.log("进入侧滑栏的create函数")
+			//设置侧滑栏的宽度
+			this.drawerWidth = this.drawerWidth * 0.618
+		},
+		mounted() {
+			console.log("进入侧滑栏的mounted函数")
+		},
+		data() {
+			return {
+				// showDrawer: false
+			}
+		},
+		methods: {
+			//点击了遮罩或关闭按钮,关闭侧滑栏
+			handClickMask() {
+				console.log("点击了mask,或点击了关闭按钮")
+				this.showDrawer = false
+				this.$emit('closeDrawer')
+			},
+			//点击了drager
+			handClickDrawer() {
+				console.log("点击了抽屉")
+			}
+		}
+	}
+</script>
+
+<style>
+	.drawer-box {
+		width: 750px;
+		height: 1200px;
+		background-color: rgba(0, 0, 0, 0.4);
+		position: fixed;
+		left: 0;
+		float: left;
+		z-index: 1001;
+		/* transition: width 2s; */
+		
+	}
+
+	.drawer {
+		width: 463.5px;
+		height: 1200px;
+		background-color: #F5F5F5;
+		left: 0;
+		float: left;
+		z-index: 10001;
+	}
+	
+	.button{
+		width: 300px;
+		height: 70px;
+		text-align: center;
+		font-size: 35px;
+		line-height: 70px;
+		color: #FFFFFF;
+		background-color: #EA5455;
+		margin: 0 70px;
+		border: 1px solid #ccc;
+		border-radius: 10px;
+		position: fixed;
+		bottom: 80px;
+	}
+</style>

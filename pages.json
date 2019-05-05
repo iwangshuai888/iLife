@@ -1,0 +1,284 @@
+{
+	"pages": [
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "附近商铺",
+				"navigationBarBackgroundColor": "#ea5455",
+				"navigationBarTextStyle": "white",
+				"enablePullDownRefresh": true,
+				"app-plus": {
+					"titleNView": {
+						"searchInput": {
+							"placeholder": "请输入附近商铺",
+							"placeholderColor": "#696969",
+							"borderRadius": "20px",
+							"backgroundColor": "rgba(255,255,255,0.8)"
+						},
+						"buttons": [{
+							"text": "\ue333",
+							"fontSrc": "/static/uni.ttf",
+							"fontSize": "25px",
+							"float":"right"
+						},{
+							"text": "\ue563",
+							"fontSrc": "/static/uni.ttf",
+							"fontSize": "25px",
+							"float": "left"
+						}]
+					},		
+					"scrollIndicator": "none"
+				}
+			}
+		},
+		{
+			"path": "pages/news/news",
+			"style": {
+				"navigationBarTitleText": "动态",
+				"navigationBarBackgroundColor": "#ea5455",
+				"navigationBarTextStyle": "white",
+				"enablePullDownRefresh": true,
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"type":"back",
+							"fontSize": "25px",
+							"float":"left"
+						},{
+							"text": "\ue333",
+							"fontSrc": "/static/uni.ttf",
+							"fontSize": "25px",
+							"float":"right",
+							"width": "45px"
+						}]
+					},
+					"scrollIndicator": "none"
+				}
+			}
+		},
+		{
+			"path": "pages/login/login",
+			"style": {
+				"app-plus": {
+					"scrollIndicator": "none"
+				},
+				"navigationBarTitleText": "登录",
+				"navigationBarBackgroundColor": "#ea5455",
+				"navigationBarTextStyle": "white"
+			}
+		},
+		{
+			"path": "pages/chat/chat",
+			"style": {
+				"navigationBarTitleText": "互动",
+				"navigationBarBackgroundColor": "#ea5455",
+				"navigationBarTextStyle": "white",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"type":"back",
+							"fontSize": "25px",
+							"float":"left"
+						}]
+					},
+					"scrollIndicator": "none"
+				}
+			}
+		},
+		{
+			"path": "pages/me/me",
+			"style": {
+				"navigationBarTitleText": "我的信息",
+				"navigationBarBackgroundColor": "#ea5455",
+				"navigationBarTextStyle": "white",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"type":"back",
+							"fontSize": "25px",
+							"float":"left"
+						}]
+					},
+					"scrollIndicator": "none"
+				}
+			}
+		},{
+			"path": "pages/userInfo/userInfo",
+			"style": {
+				"navigationBarTitleText": "用户信息",
+				"navigationBarBackgroundColor": "#ea5455",
+				"navigationBarTextStyle": "white",
+				"enablePullDownRefresh": true,
+				"app-plus": {
+					"titleNView": {
+						"buttons": []
+					},
+					"scrollIndicator": "none"
+				}
+			}
+		},{
+			"path": "pages/changeUserInfo/changeUserInfo",
+			"style": {
+				"navigationBarTitleText": "修改个人信息",
+				"navigationBarBackgroundColor": "#ea5455",
+				"navigationBarTextStyle": "white",
+				"app-plus": {
+					"titleNView": {
+					},
+					"scrollIndicator": "none"
+				}
+			}
+		},{
+			"path": "pages/createNews/createNews",
+			"style": {
+				"navigationBarTitleText": "发布动态",
+				"navigationBarBackgroundColor": "#ea5455",
+				"navigationBarTextStyle": "white",
+				"app-plus": {
+					"titleNView": {
+						"buttons": []
+					},
+					"scrollIndicator": "none"
+				}
+			}
+		},{
+			"path": "pages/applyShop/applyShop",
+			"style": {
+				"navigationBarTitleText": "上线店铺",
+				"navigationBarBackgroundColor": "#ea5455",
+				"navigationBarTextStyle": "white",
+				"app-plus": {
+					"animationType": "slide-in-bottom",
+					"titleNView": {
+						"buttons": []
+					},
+					"scrollIndicator": "none"
+				}
+			}
+		},{
+			"path": "pages/chatScreen/chatScreen",
+			"style": {
+				"navigationBarTitleText": "聊天",
+				"navigationBarBackgroundColor": "#ea5455",
+				"navigationBarTextStyle": "white",
+				"app-plus": {
+					"animationType": "slide-in-bottom",
+					"titleNView": {
+						"buttons": []
+					}
+				}
+			}
+		},{
+			"path": "pages/newsDetail/newsDetail",
+			"style": {
+				"navigationBarTitleText": "动态详情",
+				"navigationBarBackgroundColor": "#ea5455",
+				"navigationBarTextStyle": "white",
+				"enablePullDownRefresh": true,
+				"app-plus": {
+					"animationType": "pop-in",
+					"titleNView": {
+						"buttons": []
+					},
+					"scrollIndicator": "none"
+				}
+			}
+		},{
+			"path": "pages/newsList/newsList",
+			"style": {
+				"navigationBarTitleText": "动态列表",
+				"navigationBarBackgroundColor": "#ea5455",
+				"navigationBarTextStyle": "white",
+				"enablePullDownRefresh": true,
+				"app-plus": {
+					"titleNView": {
+						"buttons": []
+					},
+					"scrollIndicator": "none"
+				}
+			}
+		},{
+			"path": "pages/shopDetail/shopDetail",
+			"style": {
+				"navigationBarTitleText": "店铺详情",
+				"navigationBarBackgroundColor": "#ea5455",
+				"navigationBarTextStyle": "white",
+				"app-plus": {
+					"titleNView": {
+						"buttons": []
+					},
+					"scrollIndicator": "none"
+				}
+			}
+		},{
+			"path": "pages/shopCategory/shopCategory",
+			"style": {
+				"navigationBarTitleText": "店铺分类",
+				"navigationBarBackgroundColor": "#ea5455",
+				"navigationBarTextStyle": "white",
+				"app-plus": {
+					"titleNView": {
+						"buttons": []
+					},
+					"scrollIndicator": "none"
+				}
+			}
+		},{
+			"path": "pages/chooseShop/chooseShop",
+			"style": {
+				"navigationBarTitleText": "选择店铺",
+				"navigationBarBackgroundColor": "#ea5455",
+				"navigationBarTextStyle": "white",
+				"app-plus": {
+					"titleNView": {
+						"searchInput": {
+							"placeholder": "请输入附近商铺",
+							"placeholderColor": "#696969",
+							"borderRadius": "20px",
+							"backgroundColor": "rgba(255,255,255,0.8)"
+						},
+						"buttons": [{
+							"text": "选择店铺",
+							"fontSize": "16px",
+							"width": "75px",
+							"float":"right"
+						}]
+					},
+					"scrollIndicator": "none"
+				}
+			}
+		}
+
+	],
+	"globalStyle": {},
+	"tabBar": {
+		"backgroundColor": "#FFFFFF",
+		"selectedColor": "#ea5455",
+		"list": [
+			{
+				"pagePath": "pages/index/index",
+				"text": "首页",
+				"iconPath": "static/tabBar/home.png",
+				"selectedIconPath": "static/tabBar/click/home.png"
+			},
+			{
+					"pagePath": "pages/news/news",
+					"text": "动态",
+					"iconPath": "static/tabBar/news.png",
+					"selectedIconPath": "static/tabBar/click/news.png"
+				},
+			{
+				"pagePath": "pages/chat/chat",
+				"text": "互动",
+				"iconPath": "static/tabBar/chat.png",
+				"selectedIconPath": "static/tabBar/click/chat.png"
+			},
+			{
+				"pagePath": "pages/me/me",
+				"text": "我的",
+				"iconPath": "static/tabBar/me.png",
+				"selectedIconPath": "static/tabBar/click/me.png"
+			}
+		]
+	}
+}

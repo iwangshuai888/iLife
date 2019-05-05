@@ -1,0 +1,340 @@
+<template>
+	<div>
+		<div class="list-cell" @click="bindClick">
+
+			<!-- 动态的顶部用户信息, 头像,昵称,性别,动态标题 -->
+			<div class="info-box" @click="bindClick">
+				<div class="userInfo-box">
+					<image class="face" :src="itemData.userInfo.faceUrl" @click="goUserInfo"></image> <!-- 用户头像 -->
+
+					<!-- 用户昵称,性别, 身份 -->
+					<div class="nickname-sex-idStatus-box" @click="bindClick">
+						<text class="nickname" >{{itemData.userInfo.nickname}}</text> <!-- 用户昵称 -->
+						<!-- 性别 -->
+						<image class="sex" v-if="isBoy == 1" src="../../static/sex/boy.png"></image>
+						<image class="sex" v-if="isBoy == 2" src="../../static/sex/girl.png"></image>
+						<!-- 身份 -->
+						<text class="id-status">-{{isIdStatus}}</text>
+					</div>
+					<!-- 动态分类 -->
+					<text class="news-category">/{{itemData.newsCategory}}</text>
+				</div>
+				<!-- 动态描述标题 -->
+				<div class="text-box">
+					<text class="text">{{itemData.newsTitle}}</text>
+				</div>
+			</div>
+
+			<!-- 动态的图片 -->
+
+			<image class="image-1" v-if="imgListSize == 1" resize="cover" :src="imageList[0].imageUrl" @click="bindClick"></image>
+
+			<div class="image-2-box" v-if="imgListSize == 2" @click="bindClick">
+				<image class="image-2" resize="cover" :src="imageList[0].imageUrl"></image>
+				<image class="image-2" resize="cover" :src="imageList[1].imageUrl"></image>
+			</div>
+
+			<div class="image-3-box" v-if="imgListSize == 3" @click="bindClick">
+				<image class="image-3-0" resize="cover" :src="imageList[0].imageUrl"></image>
+				<image class="image-3-1" resize="cover" :src="imageList[1].imageUrl"></image>
+				<image class="image-3-2" resize="cover" :src="imageList[2].imageUrl"></image>
+			</div>
+
+			<div class="image-4-box" v-if="imgListSize == 4" @click="bindClick">
+				<image class="image-1" resize="cover" :src="imageList[0].imageUrl"></image>
+				<div class="image4">
+					<image v-for="(i, index) in [1,2,3]" class="image-4" resize="cover" :src="imageList[i].imageUrl" :key="index"></image>
+				</div>
+			</div>
+
+			<!-- 底部的点赞,评论,更多图标和时间 -->
+			<div class="icon-box">
+				<image class="icon" @click="clickLike" :src="isLike? '../../static/news/click/like1.png': '../../static/news/like.png' ">
+					<text class="count">{{likeCount}}</text>
+				</image>
+				<image class="icon" @click="clickComment" src="../../static/news/comment.png">
+					<text class="count">{{commentCount}}</text>
+				</image>
+
+				<image class="icon" @click="clickMore" src="../../static/news/more.png"></image>
+				
+				<text class="date">{{itemData.dateTime}}</text>
+			</div>
+
+		</div>
+	</div>
+</template>
+
+<script>
+	export default {
+		//这里的data属性是接收父组件传过来的 单条动态数据对象
+		props: {
+			itemData: {
+				type: Object,
+				default: function(e) {
+					return {}
+				}
+			}
+		},
+		data() {
+			return {
+				imageList: [], //主页动态的图片列表
+				isLike: '', //是否点赞,1表示点赞了, 0表示未点赞
+				likeCount: 0, //点赞数
+				commentCount: 0 //评论数
+			}
+		},
+		created() {
+			var data = this.itemData;
+			this.imageList = data.newsImage; //主页动态的图片列表
+			this.isLike = data.isLike;
+			this.likeCount = data.likeCount;
+			this.commentCount = data.commentCount;
+		},
+		computed: {
+			isBoy() {
+				return this.itemData.userInfo.sex;
+			},
+			isIdStatus() {
+				let idStatus = this.itemData.userInfo.idStatus;
+				if (idStatus == 1) {
+					return "店主"
+				} else if (idStatus == 0) {
+					return "顾客"
+				} else {
+					return ''
+				}
+			},
+			imgListSize() {
+				return this.imageList.length;
+			}
+		},
+		methods: {
+			//跳转到用户详情页,将需要查询的userId存入缓存
+			goUserInfo() {
+				//console.log(this.newsItem.userInfo.id)
+				uni.navigateTo({
+					url: "/pages/userInfo/userInfo?userId=" + this.itemData.userInfo.id
+				})
+			},
+			bindClick() {
+				this.$emit('click'); //向外触发点击动态事件
+			},
+			//点击了点赞/取消点赞
+			clickLike() {
+				if (this.isLike == 0) {
+					//TODO
+					this.isLike = 1
+					this.likeCount++;
+				} else if (this.isLike == 1) {
+					//TODO	
+					this.isLike = 0
+					this.likeCount--;
+				} else {
+					return
+				}
+			},
+			//点击了评论按钮
+			clickComment() {
+				this.$emit('clickComment'); //向外触发点击评论事件
+				console.log("评论")
+			},
+			//点击了...
+			clickMore(){
+				uni.showActionSheet({
+				    itemList: ["举报"],
+				    success: (res) => {
+						//TODO
+				        console.log("举报动态: Id = " + this.itemData.newsId)
+				    }
+				})
+			}
+		}
+	}
+</script>
+
+<style>
+	.list-cell {
+		width: 750px;
+		margin-top: 10px;
+		background-color: #F5F5F5;
+	}
+
+	.list-cell:active {
+		background-color: #eeeeee;
+	}
+
+	.info-box {
+		width: 750px;
+		border-top-left-radius: 10px;
+		border-top-right-radius: 10px;
+	}
+
+	.userInfo-box {
+		width: 750px;
+		height: 110px;
+		padding: 5px;
+		background-color: #fff;
+		display: flex;
+		flex-direction: row;
+	}
+
+	.userInfo-box:active {
+		background-color: #eeeeee;
+	}
+
+	.face {
+		width: 100px;
+		height: 100px;
+		margin-right: 10px;
+		border-radius: 50%;
+	}
+
+	.nickname-sex-idStatus-box {
+		width: 450px;
+		height: 100px;
+	}
+
+	.nickname {
+		font-size: 35px;
+		line-height: 60px;
+	}
+
+	.sex {
+		width: 28px;
+		height: 28px;
+		margin: 0 10px;
+	}
+
+	.id-status {
+		position: absolute;
+		bottom: 10px;
+		left: 40px;
+		color: #707070;
+		font-size: 28px;
+
+	}
+
+	.news-category {
+		width: 150px;
+		height: 100px;
+		line-height: 100px;
+		text-align: center;
+		font-size: 30px;
+		color: #707070;
+	}
+
+	.text-box {
+		width: 750px;
+		padding: 10px 17px 10 17px;
+		background-color: #fff;
+	}
+
+	.text {
+		font-size: 28px;
+		color: #555555;
+	}
+
+	.icon-box {
+		width: 750px;
+		height: 80px;
+		margin-top: 5px;
+		background-color: #fff;
+		display: flex;
+		flex-direction: row;
+	}
+
+	.icon {
+		width: 80px;
+		height: 80px;
+		border-width: 10px;
+		border-color: #FFFFFF;
+		margin-left: 25px;
+	}
+
+	.icon:active {
+		background-color: #eeeeee;
+	}
+
+	.count {
+		font-size: 22px;
+		color: #707070;
+		margin-top: 40px;
+	}
+
+	.date {
+		font-size: 30px;
+		color: #999999;
+		position: absolute;
+		right: 30px;
+		line-height: 80px;
+	}
+
+	.image-1 {
+		width: 750px;
+		height: 400px;
+		margin-bottom: 3px;
+		opacity: 1;
+	}
+
+	.image-2-box {
+		width: 750px;
+		height: 340px;
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		opacity: 1;
+	}
+
+	.image-2 {
+		width: 373px;
+		height: 340px;
+	}
+
+	.image-3-box {
+		width: 750px;
+		height: 500px;
+		opacity: 1;
+	}
+
+	.image-3-0 {
+		width: 500px;
+		height: 500px;
+		position: absolute;
+		left: 0;
+	}
+
+	.image-3-1 {
+		width: 247px;
+		height: 248px;
+		position: absolute;
+		right: 0;
+	}
+
+	.image-3-2 {
+		width: 247px;
+		height: 248px;
+		position: absolute;
+		right: 0;
+		bottom: 0;
+	}
+
+	.image-4-box {
+		width: 750px;
+		height: 640px;
+		opacity: 1;
+	}
+
+	.image4 {
+		width: 750px;
+		height: 240px;
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+	}
+
+	.image-4 {
+		width: 248px;
+		height: 240px;
+	}
+</style>
